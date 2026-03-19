@@ -4,29 +4,62 @@
 
 // ---- Data: Health Milestones ----
 const MILESTONES = [
-  { days: 1,    label: "1 день",    health: "Пульс и давление начинают нормализоваться" },
-  { days: 2,    label: "2 дня",     health: "Обоняние и вкус начинают восстанавливаться" },
-  { days: 3,    label: "3 дня",     health: "Никотин полностью выведен из организма" },
-  { days: 7,    label: "1 неделя",  health: "Лёгкие начинают очищаться" },
-  { days: 14,   label: "2 недели",  health: "Кровообращение заметно улучшилось" },
-  { days: 21,   label: "3 недели",  health: "Физическая зависимость от никотина ушла" },
-  { days: 30,   label: "1 месяц",   health: "Функция лёгких улучшилась на 30%" },
-  { days: 60,   label: "2 месяца",  health: "Кожа начинает выглядеть свежее" },
-  { days: 90,   label: "3 месяца",  health: "Риск сердечного приступа начал снижаться" },
-  { days: 180,  label: "6 месяцев", health: "Кашель курильщика значительно уменьшился" },
-  { days: 270,  label: "9 месяцев", health: "Лёгкие восстановились, дышать стало легче" },
-  { days: 365,  label: "1 год",     health: "Риск болезней сердца снизился вдвое" },
-  { days: 730,  label: "2 года",    health: "Риск инсульта как у некурящего" },
-  { days: 1825, label: "5 лет",     health: "Риск рака лёгких снизился вдвое" },
-  { days: 3650, label: "10 лет",    health: "Риск рака лёгких как у некурящего" },
+  { days: 1, label: "1 день", health: "Пульс и давление начинают нормализоваться" },
+  { days: 2, label: "2 дня", health: "Обоняние и вкус начинают восстанавливаться" },
+  {
+    days: 3,
+    label: "3 дня",
+    health: "Никотин полностью выведен из организма. ⚠️ Пик физической ломки — держись!",
+  },
+  {
+    days: 7,
+    label: "1 неделя",
+    health: "Лёгкие начинают очищаться. ⚠️ Частая точка срыва — не сдавайся",
+  },
+  { days: 14, label: "2 недели", health: "Кровообращение заметно улучшилось. ⚠️ Ещё опасная зона" },
+  { days: 21, label: "3 недели", health: "Физическая зависимость от никотина ушла" },
+  { days: 30, label: "1 месяц", health: "Функция лёгких улучшилась на 30%. ⚠️ Частая точка срыва" },
+  { days: 60, label: "2 месяца", health: "Кожа начинает выглядеть свежее" },
+  {
+    days: 90,
+    label: "3 месяца",
+    health: "Риск сердечного приступа начал снижаться. ⚠️ Привычки ещё тянут",
+  },
+  { days: 120, label: "4 месяца", health: "Иммунная система укрепилась, болеть будешь реже" },
+  {
+    days: 150,
+    label: "5 месяцев",
+    health: "Нервная система стабилизировалась, стресс уходит легче",
+  },
+  {
+    days: 180,
+    label: "6 месяцев",
+    health: "Кашель курильщика значительно уменьшился. ⚠️ Опасный рубеж — не расслабляйся",
+  },
+  { days: 240, label: "8 месяцев", health: "Выносливость выросла, одышка почти ушла" },
+  { days: 270, label: "9 месяцев", health: "Лёгкие восстановились, дышать стало легче" },
+  { days: 300, label: "10 месяцев", health: "Тяга практически ушла, но остерегайся триггеров" },
+  {
+    days: 365,
+    label: "1 год",
+    health: "Риск болезней сердца снизился вдвое. ⚠️ Годовщина — частая точка срыва",
+  },
+  { days: 548, label: "1.5 года", health: "Риск инсульта начал снижаться" },
+  {
+    days: 730,
+    label: "2 года",
+    health: "Риск инсульта как у некурящего. Главный враг теперь — курящие друзья",
+  },
+  { days: 1825, label: "5 лет", health: "Риск рака лёгких снизился вдвое" },
+  { days: 3650, label: "10 лет", health: "Риск рака лёгких как у некурящего. Ты свободен!" },
 ];
 
 // ---- State Management ----
 let state = {
   screen: "setup",
-  quitDate: "2025-03-17",
+  quitDate: "2026-03-17",
   cigsPerDay: 20,
-  packPrice: 7,
+  packPrice: 2.5,
   cigsInPack: 20,
   added: {},
 };
@@ -94,7 +127,9 @@ function calUrl(m) {
   const saved = (m.days * dailyCost()).toFixed(0);
   const title = `🚭 Без сигарет уже ${m.label}!`;
   const details = `${m.health}\n\nСэкономлено: ~$${saved}\n\nТак держать! 💪`;
-  return `https://calendar.google.com/calendar/r/eventedit?text=${encodeURIComponent(title)}&dates=${ds}T090000/${ds}T093000&details=${encodeURIComponent(details)}`;
+  return `https://calendar.google.com/calendar/r/eventedit?text=${encodeURIComponent(
+    title
+  )}&dates=${ds}T090000/${ds}T093000&details=${encodeURIComponent(details)}`;
 }
 
 function openCal(url) {
@@ -209,13 +244,21 @@ function renderDashboard() {
     <div class="container">
       <div class="header-label">Без сигарет</div>
       <div class="timer-row">
-        <div class="timer-unit"><div class="timer-val big" id="t-d">${pad(d.days)}</div><div class="timer-lbl">дн</div></div>
+        <div class="timer-unit"><div class="timer-val big" id="t-d">${pad(
+          d.days
+        )}</div><div class="timer-lbl">дн</div></div>
         <span class="timer-sep">:</span>
-        <div class="timer-unit"><div class="timer-val" id="t-h">${pad(d.hours)}</div><div class="timer-lbl">ч</div></div>
+        <div class="timer-unit"><div class="timer-val" id="t-h">${pad(
+          d.hours
+        )}</div><div class="timer-lbl">ч</div></div>
         <span class="timer-sep">:</span>
-        <div class="timer-unit"><div class="timer-val" id="t-m">${pad(d.mins)}</div><div class="timer-lbl">мин</div></div>
+        <div class="timer-unit"><div class="timer-val" id="t-m">${pad(
+          d.mins
+        )}</div><div class="timer-lbl">мин</div></div>
         <span class="timer-sep">:</span>
-        <div class="timer-unit"><div class="timer-val" id="t-s">${pad(d.secs)}</div><div class="timer-lbl">сек</div></div>
+        <div class="timer-unit"><div class="timer-val" id="t-s">${pad(
+          d.secs
+        )}</div><div class="timer-lbl">сек</div></div>
       </div>
 
       <div class="stats-row">
@@ -256,7 +299,11 @@ function renderDashboard() {
 
       <div class="section-title">Календарь вех</div>
 
-      ${hasFuture && !allAdded ? '<button class="btn-add-all" id="btn-all">📅 Добавить все напоминания в календарь</button>' : ""}
+      ${
+        hasFuture && !allAdded
+          ? '<button class="btn-add-all" id="btn-all">📅 Добавить все напоминания в календарь</button>'
+          : ""
+      }
 
       ${milestonesHtml}
 
