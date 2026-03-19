@@ -384,12 +384,27 @@ body {
   font-size: 13px;
   flex-shrink: 0;
   background: rgba(255, 255, 255, 0.06);
+  border: 2px solid rgba(255, 255, 255, 0.1);
   color: var(--text-dim);
+  position: relative;
+}
+
+.ms-dot:empty::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .milestone.passed .ms-dot {
   background: linear-gradient(135deg, var(--accent-green), var(--accent));
+  border-color: transparent;
   color: #fff;
+}
+
+.milestone.passed .ms-dot::after {
+  display: none;
 }
 
 .ms-body {

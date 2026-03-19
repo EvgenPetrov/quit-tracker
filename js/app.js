@@ -182,7 +182,7 @@ function renderDashboard() {
     const isAdded = state.added[m.days];
     return `
       <div class="milestone ${passed ? "passed" : ""} animate-in">
-        <div class="ms-dot">${passed ? "✓" : "○"}</div>
+        <div class="ms-dot">${passed ? "✓" : ""}</div>
         <div class="ms-body">
           <div class="ms-name">${m.label}<span class="ms-date">${milestoneDate(m)}</span></div>
           <div class="ms-detail">${m.health} · 💰 ~$${(m.days * dailyCost()).toFixed(0)}</div>
