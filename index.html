@@ -1,473 +1,564 @@
 <!DOCTYPE html>
 <html lang="ru">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quit Tracker — Трекер без сигарет</title>
-<meta name="description" content="Простой трекер отказа от курения с напоминаниями в Google Календарь">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚭</text></svg>">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<style>
-  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quit Tracker — Трекер без сигарет</title>
+    <meta
+      name="description"
+      content="Простой трекер отказа от курения с напоминаниями в Google Календарь" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚭</text></svg>" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet" />
+    <style>
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-  :root {
-    --bg-deep: #070b14;
-    --bg-mid: #0f1629;
-    --bg-card: rgba(255,255,255,0.03);
-    --border: rgba(255,255,255,0.06);
-    --border-accent: rgba(0,206,201,0.2);
-    --text: #e2e4e9;
-    --text-dim: rgba(255,255,255,0.4);
-    --text-faint: rgba(255,255,255,0.25);
-    --accent: #00cec9;
-    --accent-green: #00b894;
-    --accent-yellow: #fdcb6e;
-    --accent-orange: #e17055;
-    --glow: rgba(0,206,201,0.08);
-  }
+      :root {
+        --bg-deep: #070b14;
+        --bg-mid: #0f1629;
+        --bg-card: rgba(255, 255, 255, 0.03);
+        --border: rgba(255, 255, 255, 0.06);
+        --border-accent: rgba(0, 206, 201, 0.2);
+        --text: #e2e4e9;
+        --text-dim: rgba(255, 255, 255, 0.4);
+        --text-faint: rgba(255, 255, 255, 0.25);
+        --accent: #00cec9;
+        --accent-green: #00b894;
+        --accent-yellow: #fdcb6e;
+        --accent-orange: #e17055;
+        --glow: rgba(0, 206, 201, 0.08);
+      }
 
-  body {
-    font-family: 'Inter', -apple-system, sans-serif;
-    background: linear-gradient(160deg, var(--bg-deep) 0%, var(--bg-mid) 50%, #0d1a2d 100%);
-    color: var(--text);
-    min-height: 100vh;
-    -webkit-font-smoothing: antialiased;
-  }
+      body {
+        font-family: "Inter", -apple-system, sans-serif;
+        background: linear-gradient(160deg, var(--bg-deep) 0%, var(--bg-mid) 50%, #0d1a2d 100%);
+        color: var(--text);
+        min-height: 100vh;
+        -webkit-font-smoothing: antialiased;
+      }
 
-  .container {
-    max-width: 540px;
-    margin: 0 auto;
-    padding: 24px 16px 40px;
-  }
+      .container {
+        max-width: 540px;
+        margin: 0 auto;
+        padding: 24px 16px 40px;
+      }
 
-  /* ---- SETUP SCREEN ---- */
-  .setup-wrap {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-  }
-  .setup-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 24px;
-    padding: 44px 36px;
-    max-width: 440px;
-    width: 100%;
-    backdrop-filter: blur(20px);
-    animation: fadeUp .5s ease-out;
-  }
-  .setup-icon { font-size: 52px; text-align: center; margin-bottom: 14px; }
-  .setup-title {
-    text-align: center;
-    font-size: 24px;
-    font-weight: 700;
-    letter-spacing: -0.4px;
-    margin-bottom: 4px;
-  }
-  .setup-sub {
-    text-align: center;
-    color: var(--text-dim);
-    font-size: 14px;
-    margin-bottom: 32px;
-  }
-  .field { margin-bottom: 20px; }
-  .field-row { display: flex; gap: 12px; }
-  .field-row .field { flex: 1; }
-  .field label {
-    display: block;
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--text-dim);
-    margin-bottom: 6px;
-    letter-spacing: 0.3px;
-  }
-  .field input {
-    width: 100%;
-    padding: 13px 14px;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    color: var(--text);
-    font-size: 15px;
-    font-family: inherit;
-    outline: none;
-    transition: border-color .2s;
-  }
-  .field input:focus { border-color: rgba(0,206,201,0.4); }
+      /* ---- SETUP SCREEN ---- */
+      .setup-wrap {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+      }
+      .setup-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        padding: 44px 36px;
+        max-width: 440px;
+        width: 100%;
+        backdrop-filter: blur(20px);
+        animation: fadeUp 0.5s ease-out;
+      }
+      .setup-icon {
+        font-size: 52px;
+        text-align: center;
+        margin-bottom: 14px;
+      }
+      .setup-title {
+        text-align: center;
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: -0.4px;
+        margin-bottom: 4px;
+      }
+      .setup-sub {
+        text-align: center;
+        color: var(--text-dim);
+        font-size: 14px;
+        margin-bottom: 32px;
+      }
+      .field {
+        margin-bottom: 20px;
+      }
+      .field-row {
+        display: flex;
+        gap: 12px;
+      }
+      .field-row .field {
+        flex: 1;
+      }
+      .field label {
+        display: block;
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--text-dim);
+        margin-bottom: 6px;
+        letter-spacing: 0.3px;
+      }
+      .field input {
+        width: 100%;
+        padding: 13px 14px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        color: var(--text);
+        font-size: 15px;
+        font-family: inherit;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+      .field input:focus {
+        border-color: rgba(0, 206, 201, 0.4);
+      }
 
-  .btn-start {
-    margin-top: 28px;
-    width: 100%;
-    padding: 16px;
-    background: linear-gradient(135deg, var(--accent-green), var(--accent));
-    border: none;
-    border-radius: 14px;
-    color: #fff;
-    font-size: 16px;
-    font-weight: 600;
-    font-family: inherit;
-    cursor: pointer;
-    letter-spacing: 0.3px;
-    transition: transform .15s, box-shadow .15s;
-  }
-  .btn-start:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 8px 30px rgba(0,206,201,0.3);
-  }
-  .btn-start:active { transform: translateY(0); }
+      .btn-start {
+        margin-top: 28px;
+        width: 100%;
+        padding: 16px;
+        background: linear-gradient(135deg, var(--accent-green), var(--accent));
+        border: none;
+        border-radius: 14px;
+        color: #fff;
+        font-size: 16px;
+        font-weight: 600;
+        font-family: inherit;
+        cursor: pointer;
+        letter-spacing: 0.3px;
+        transition: transform 0.15s, box-shadow 0.15s;
+      }
+      .btn-start:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 30px rgba(0, 206, 201, 0.3);
+      }
+      .btn-start:active {
+        transform: translateY(0);
+      }
 
-  /* ---- DASHBOARD ---- */
-  .header-label {
-    text-align: center;
-    font-size: 12px;
-    color: var(--text-faint);
-    letter-spacing: 2.5px;
-    text-transform: uppercase;
-    margin-bottom: 6px;
-  }
-  .timer-row {
-    display: flex;
-    justify-content: center;
-    align-items: baseline;
-    gap: 10px;
-    margin-bottom: 28px;
-  }
-  .timer-unit { text-align: center; }
-  .timer-val {
-    font-size: 40px;
-    font-weight: 800;
-    font-variant-numeric: tabular-nums;
-    color: rgba(255,255,255,0.7);
-    line-height: 1;
-  }
-  .timer-val.big { font-size: 52px; color: #fff; }
-  .timer-lbl {
-    font-size: 10px;
-    color: var(--text-faint);
-    letter-spacing: 1.2px;
-    margin-top: 4px;
-  }
-  .timer-sep {
-    font-size: 28px;
-    font-weight: 200;
-    color: rgba(255,255,255,0.15);
-  }
+      /* ---- DASHBOARD ---- */
+      .header-label {
+        text-align: center;
+        font-size: 12px;
+        color: var(--text-faint);
+        letter-spacing: 2.5px;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+      }
+      .timer-row {
+        display: flex;
+        justify-content: center;
+        align-items: baseline;
+        gap: 10px;
+        margin-bottom: 28px;
+      }
+      .timer-unit {
+        text-align: center;
+      }
+      .timer-val {
+        font-size: 40px;
+        font-weight: 800;
+        font-variant-numeric: tabular-nums;
+        color: rgba(255, 255, 255, 0.7);
+        line-height: 1;
+      }
+      .timer-val.big {
+        font-size: 52px;
+        color: #fff;
+      }
+      .timer-lbl {
+        font-size: 10px;
+        color: var(--text-faint);
+        letter-spacing: 1.2px;
+        margin-top: 4px;
+      }
+      .timer-sep {
+        font-size: 28px;
+        font-weight: 200;
+        color: rgba(255, 255, 255, 0.15);
+      }
 
-  /* Stats */
-  .stats-row {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 24px;
-  }
-  .stat-card {
-    flex: 1;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 16px 10px;
-    text-align: center;
-  }
-  .stat-icon { font-size: 20px; margin-bottom: 6px; }
-  .stat-val {
-    font-size: 17px;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    line-height: 1.2;
-  }
-  .stat-lbl { font-size: 11px; color: var(--text-faint); margin-top: 3px; }
+      /* Stats */
+      .stats-row {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 24px;
+      }
+      .stat-card {
+        flex: 1;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 16px 10px;
+        text-align: center;
+      }
+      .stat-icon {
+        font-size: 20px;
+        margin-bottom: 6px;
+      }
+      .stat-val {
+        font-size: 17px;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+        line-height: 1.2;
+      }
+      .stat-lbl {
+        font-size: 11px;
+        color: var(--text-faint);
+        margin-top: 3px;
+      }
 
-  /* Next milestone */
-  .next-box {
-    background: var(--glow);
-    border: 1px solid var(--border-accent);
-    border-radius: 18px;
-    padding: 20px;
-    margin-bottom: 24px;
-  }
-  .next-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-  .next-label { font-size: 11px; color: var(--text-faint); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 3px; }
-  .next-name { font-size: 20px; font-weight: 700; color: var(--accent); }
-  .next-remain { font-size: 13px; color: var(--text-dim); }
-  .next-health { font-size: 13px; color: var(--text-dim); margin-bottom: 14px; }
-  .progress-track {
-    height: 6px;
-    background: rgba(255,255,255,0.06);
-    border-radius: 3px;
-    overflow: hidden;
-  }
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent-green), var(--accent));
-    border-radius: 3px;
-    transition: width 1s ease;
-  }
+      /* Next milestone */
+      .next-box {
+        background: var(--glow);
+        border: 1px solid var(--border-accent);
+        border-radius: 18px;
+        padding: 20px;
+        margin-bottom: 24px;
+      }
+      .next-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+      .next-label {
+        font-size: 11px;
+        color: var(--text-faint);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-bottom: 3px;
+      }
+      .next-name {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--accent);
+      }
+      .next-remain {
+        font-size: 13px;
+        color: var(--text-dim);
+      }
+      .next-health {
+        font-size: 13px;
+        color: var(--text-dim);
+        margin-bottom: 14px;
+      }
+      .progress-track {
+        height: 6px;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 3px;
+        overflow: hidden;
+      }
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--accent-green), var(--accent));
+        border-radius: 3px;
+        transition: width 1s ease;
+      }
 
-  /* Milestones list */
-  .section-title {
-    font-size: 11px;
-    color: var(--text-faint);
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    margin-bottom: 14px;
-  }
-  .milestone {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 14px 16px;
-    border-radius: 14px;
-    border: 1px solid var(--border);
-    background: var(--bg-card);
-    margin-bottom: 8px;
-    transition: all .2s;
-  }
-  .milestone.passed {
-    background: rgba(0,184,148,0.07);
-    border-color: rgba(0,184,148,0.18);
-  }
-  .ms-dot {
-    width: 28px; height: 28px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 13px;
-    flex-shrink: 0;
-    background: rgba(255,255,255,0.06);
-    color: var(--text-dim);
-  }
-  .milestone.passed .ms-dot {
-    background: linear-gradient(135deg, var(--accent-green), var(--accent));
-    color: #fff;
-  }
-  .ms-body { flex: 1; min-width: 0; }
-  .ms-name {
-    font-size: 15px;
-    font-weight: 600;
-  }
-  .milestone.passed .ms-name { color: var(--accent); }
-  .ms-date {
-    font-size: 12px;
-    font-weight: 400;
-    color: var(--text-faint);
-    margin-left: 8px;
-  }
-  .ms-detail {
-    font-size: 12px;
-    color: var(--text-dim);
-    margin-top: 2px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .ms-action { flex-shrink: 0; }
-  .btn-remind {
-    display: inline-block;
-    padding: 6px 14px;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 10px;
-    color: var(--text-dim);
-    font-size: 12px;
-    font-family: inherit;
-    text-decoration: none;
-    cursor: pointer;
-    transition: all .15s;
-    white-space: nowrap;
-  }
-  .btn-remind:hover {
-    background: rgba(0,206,201,0.1);
-    border-color: rgba(0,206,201,0.25);
-    color: var(--accent);
-  }
-  .btn-remind.added {
-    background: rgba(0,184,148,0.12);
-    border-color: rgba(0,184,148,0.25);
-    color: var(--accent);
-  }
-  .passed-badge {
-    font-size: 12px;
-    color: var(--accent-green);
-    font-weight: 500;
-    white-space: nowrap;
-  }
+      /* Milestones list */
+      .section-title {
+        font-size: 11px;
+        color: var(--text-faint);
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        margin-bottom: 14px;
+      }
+      .milestone {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 16px;
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        background: var(--bg-card);
+        margin-bottom: 8px;
+        transition: all 0.2s;
+      }
+      .milestone.passed {
+        background: rgba(0, 184, 148, 0.07);
+        border-color: rgba(0, 184, 148, 0.18);
+      }
+      .ms-dot {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        flex-shrink: 0;
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--text-dim);
+      }
+      .milestone.passed .ms-dot {
+        background: linear-gradient(135deg, var(--accent-green), var(--accent));
+        color: #fff;
+      }
+      .ms-body {
+        flex: 1;
+        min-width: 0;
+      }
+      .ms-name {
+        font-size: 15px;
+        font-weight: 600;
+      }
+      .milestone.passed .ms-name {
+        color: var(--accent);
+      }
+      .ms-date {
+        font-size: 12px;
+        font-weight: 400;
+        color: var(--text-faint);
+        margin-left: 8px;
+      }
+      .ms-detail {
+        font-size: 12px;
+        color: var(--text-dim);
+        margin-top: 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .ms-action {
+        flex-shrink: 0;
+      }
+      .btn-remind {
+        display: inline-block;
+        padding: 6px 14px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        color: var(--text-dim);
+        font-size: 12px;
+        font-family: inherit;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.15s;
+        white-space: nowrap;
+      }
+      .btn-remind:hover {
+        background: rgba(0, 206, 201, 0.1);
+        border-color: rgba(0, 206, 201, 0.25);
+        color: var(--accent);
+      }
+      .btn-remind.added {
+        background: rgba(0, 184, 148, 0.12);
+        border-color: rgba(0, 184, 148, 0.25);
+        color: var(--accent);
+      }
+      .passed-badge {
+        font-size: 12px;
+        color: var(--accent-green);
+        font-weight: 500;
+        white-space: nowrap;
+      }
 
-  .btn-settings {
-    display: block;
-    margin: 28px auto 0;
-    background: none;
-    border: none;
-    color: var(--text-faint);
-    font-size: 13px;
-    font-family: inherit;
-    cursor: pointer;
-  }
-  .btn-settings:hover { color: var(--text-dim); }
+      .btn-settings {
+        display: block;
+        margin: 28px auto 0;
+        background: none;
+        border: none;
+        color: var(--text-faint);
+        font-size: 13px;
+        font-family: inherit;
+        cursor: pointer;
+      }
+      .btn-settings:hover {
+        color: var(--text-dim);
+      }
 
-  .btn-add-all {
-    display: block;
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 20px;
-    background: rgba(0,206,201,0.08);
-    border: 1px solid rgba(0,206,201,0.15);
-    border-radius: 12px;
-    color: var(--accent);
-    font-size: 13px;
-    font-weight: 500;
-    font-family: inherit;
-    cursor: pointer;
-    transition: all .15s;
-  }
-  .btn-add-all:hover {
-    background: rgba(0,206,201,0.14);
-  }
+      .btn-add-all {
+        display: block;
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 20px;
+        background: rgba(0, 206, 201, 0.08);
+        border: 1px solid rgba(0, 206, 201, 0.15);
+        border-radius: 12px;
+        color: var(--accent);
+        font-size: 13px;
+        font-weight: 500;
+        font-family: inherit;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .btn-add-all:hover {
+        background: rgba(0, 206, 201, 0.14);
+      }
 
-  /* Animations */
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(16px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .animate-in { animation: fadeUp .4s ease-out both; }
+      /* Animations */
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(16px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .animate-in {
+        animation: fadeUp 0.4s ease-out both;
+      }
 
-  /* Mobile tweaks */
-  @media (max-width: 400px) {
-    .timer-val { font-size: 32px; }
-    .timer-val.big { font-size: 42px; }
-    .stat-val { font-size: 15px; }
-    .setup-card { padding: 32px 24px; }
-  }
-</style>
-</head>
-<body>
+      /* Mobile tweaks */
+      @media (max-width: 400px) {
+        .timer-val {
+          font-size: 32px;
+        }
+        .timer-val.big {
+          font-size: 42px;
+        }
+        .stat-val {
+          font-size: 15px;
+        }
+        .setup-card {
+          padding: 32px 24px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
 
-<div id="app"></div>
+    <script>
+      const MILESTONES = [
+        { days: 1, label: "1 день", health: "Пульс и давление начинают нормализоваться" },
+        { days: 2, label: "2 дня", health: "Обоняние и вкус начинают восстанавливаться" },
+        { days: 3, label: "3 дня", health: "Никотин полностью выведен из организма" },
+        { days: 7, label: "1 неделя", health: "Лёгкие начинают очищаться" },
+        { days: 14, label: "2 недели", health: "Кровообращение заметно улучшилось" },
+        { days: 21, label: "3 недели", health: "Физическая зависимость от никотина ушла" },
+        { days: 30, label: "1 месяц", health: "Функция лёгких улучшилась на 30%" },
+        { days: 60, label: "2 месяца", health: "Кожа начинает выглядеть свежее" },
+        { days: 90, label: "3 месяца", health: "Риск сердечного приступа начал снижаться" },
+        { days: 180, label: "6 месяцев", health: "Кашель курильщика значительно уменьшился" },
+        { days: 270, label: "9 месяцев", health: "Лёгкие восстановились, дышать стало легче" },
+        { days: 365, label: "1 год", health: "Риск болезней сердца снизился вдвое" },
+        { days: 730, label: "2 года", health: "Риск инсульта как у некурящего" },
+        { days: 1825, label: "5 лет", health: "Риск рака лёгких снизился вдвое" },
+        { days: 3650, label: "10 лет", health: "Риск рака лёгких как у некурящего" },
+      ];
 
-<script>
-const MILESTONES = [
-  { days: 1,    label: "1 день",     health: "Пульс и давление начинают нормализоваться" },
-  { days: 2,    label: "2 дня",      health: "Обоняние и вкус начинают восстанавливаться" },
-  { days: 3,    label: "3 дня",      health: "Никотин полностью выведен из организма" },
-  { days: 7,    label: "1 неделя",   health: "Лёгкие начинают очищаться" },
-  { days: 14,   label: "2 недели",   health: "Кровообращение заметно улучшилось" },
-  { days: 21,   label: "3 недели",   health: "Физическая зависимость от никотина ушла" },
-  { days: 30,   label: "1 месяц",    health: "Функция лёгких улучшилась на 30%" },
-  { days: 60,   label: "2 месяца",   health: "Кожа начинает выглядеть свежее" },
-  { days: 90,   label: "3 месяца",   health: "Риск сердечного приступа начал снижаться" },
-  { days: 180,  label: "6 месяцев",  health: "Кашель курильщика значительно уменьшился" },
-  { days: 270,  label: "9 месяцев",  health: "Лёгкие восстановились, дышать стало легче" },
-  { days: 365,  label: "1 год",      health: "Риск болезней сердца снизился вдвое" },
-  { days: 730,  label: "2 года",     health: "Риск инсульта как у некурящего" },
-  { days: 1825, label: "5 лет",      health: "Риск рака лёгких снизился вдвое" },
-  { days: 3650, label: "10 лет",     health: "Риск рака лёгких как у некурящего" },
-];
+      // ---- State ----
+      let state = {
+        screen: "setup", // "setup" | "dashboard"
+        quitDate: "2025-03-17",
+        cigsPerDay: 20,
+        packPrice: 2.5,
+        cigsInPack: 20,
+        added: {},
+      };
 
-// ---- State ----
-let state = {
-  screen: "setup", // "setup" | "dashboard"
-  quitDate: "2025-03-17",
-  cigsPerDay: 20,
-  packPrice: 7,
-  cigsInPack: 20,
-  added: {},
-};
+      // Load from localStorage
+      try {
+        const saved = JSON.parse(localStorage.getItem("quit_tracker_state"));
+        if (saved && saved.quitDate) {
+          Object.assign(state, saved);
+          state.screen = "dashboard";
+        }
+      } catch (e) {}
 
-// Load from localStorage
-try {
-  const saved = JSON.parse(localStorage.getItem("quit_tracker_state"));
-  if (saved && saved.quitDate) {
-    Object.assign(state, saved);
-    state.screen = "dashboard";
-  }
-} catch(e) {}
+      function saveState() {
+        localStorage.setItem(
+          "quit_tracker_state",
+          JSON.stringify({
+            quitDate: state.quitDate,
+            cigsPerDay: state.cigsPerDay,
+            packPrice: state.packPrice,
+            cigsInPack: state.cigsInPack,
+            added: state.added,
+          })
+        );
+      }
 
-function saveState() {
-  localStorage.setItem("quit_tracker_state", JSON.stringify({
-    quitDate: state.quitDate,
-    cigsPerDay: state.cigsPerDay,
-    packPrice: state.packPrice,
-    cigsInPack: state.cigsInPack,
-    added: state.added,
-  }));
-}
+      function dailyCost() {
+        return (state.packPrice / state.cigsInPack) * state.cigsPerDay;
+      }
 
-function dailyCost() {
-  return (state.packPrice / state.cigsInPack) * state.cigsPerDay;
-}
+      function elapsed() {
+        return Date.now() - new Date(state.quitDate).getTime();
+      }
 
-function elapsed() {
-  return Date.now() - new Date(state.quitDate).getTime();
-}
+      function fmtDur(ms) {
+        const s = Math.max(0, Math.floor(ms / 1000));
+        return {
+          days: Math.floor(s / 86400),
+          hours: Math.floor((s % 86400) / 3600),
+          mins: Math.floor((s % 3600) / 60),
+          secs: s % 60,
+        };
+      }
 
-function fmtDur(ms) {
-  const s = Math.max(0, Math.floor(ms / 1000));
-  return {
-    days: Math.floor(s / 86400),
-    hours: Math.floor((s % 86400) / 3600),
-    mins: Math.floor((s % 3600) / 60),
-    secs: s % 60,
-  };
-}
+      function pad(n) {
+        return String(n).padStart(2, "0");
+      }
 
-function pad(n) { return String(n).padStart(2, "0"); }
+      function downloadIcs(m) {
+        const d = new Date(state.quitDate);
+        d.setDate(d.getDate() + m.days);
+        const ds = `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}`;
+        const startTime = `${ds}T090000`;
+        const endTime = `${ds}T093000`;
+        const saved = (m.days * dailyCost()).toFixed(0);
+        const title = `Без сигарет уже ${m.label}!`;
+        const desc = `${m.health}\\n\\nСэкономлено: ~$${saved}\\n\\nТак держать!`;
 
-function downloadIcs(m) {
-  const d = new Date(state.quitDate);
-  d.setDate(d.getDate() + m.days);
-  const ds = `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}`;
-  const startTime = `${ds}T090000`;
-  const endTime = `${ds}T093000`;
-  const saved = (m.days * dailyCost()).toFixed(0);
-  const title = `Без сигарет уже ${m.label}!`;
-  const desc = `${m.health}\\n\\nСэкономлено: ~$${saved}\\n\\nТак держать!`;
+        const ics = [
+          "BEGIN:VCALENDAR",
+          "VERSION:2.0",
+          "PRODID:-//QuitTracker//RU",
+          "BEGIN:VEVENT",
+          `DTSTART:${startTime}`,
+          `DTEND:${endTime}`,
+          `SUMMARY:🚭 ${title}`,
+          `DESCRIPTION:${desc}`,
+          "BEGIN:VALARM",
+          "TRIGGER:-PT30M",
+          "ACTION:DISPLAY",
+          `DESCRIPTION:${title}`,
+          "END:VALARM",
+          "BEGIN:VALARM",
+          "TRIGGER:PT0M",
+          "ACTION:DISPLAY",
+          `DESCRIPTION:${title}`,
+          "END:VALARM",
+          "END:VEVENT",
+          "END:VCALENDAR",
+        ].join("\r\n");
 
-  const ics = [
-    'BEGIN:VCALENDAR',
-    'VERSION:2.0',
-    'PRODID:-//QuitTracker//RU',
-    'BEGIN:VEVENT',
-    `DTSTART:${startTime}`,
-    `DTEND:${endTime}`,
-    `SUMMARY:🚭 ${title}`,
-    `DESCRIPTION:${desc}`,
-    'BEGIN:VALARM',
-    'TRIGGER:-PT30M',
-    'ACTION:DISPLAY',
-    `DESCRIPTION:${title}`,
-    'END:VALARM',
-    'BEGIN:VALARM',
-    'TRIGGER:PT0M',
-    'ACTION:DISPLAY',
-    `DESCRIPTION:${title}`,
-    'END:VALARM',
-    'END:VEVENT',
-    'END:VCALENDAR'
-  ].join('\r\n');
+        const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `quit-${m.days}d.ics`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
 
-  const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `quit-${m.days}d.ics`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}
+      function milestoneDate(m) {
+        const d = new Date(state.quitDate);
+        d.setDate(d.getDate() + m.days);
+        return d.toLocaleDateString("ru-RU", { day: "numeric", month: "short" });
+      }
 
-function milestoneDate(m) {
-  const d = new Date(state.quitDate);
-  d.setDate(d.getDate() + m.days);
-  return d.toLocaleDateString("ru-RU", { day: "numeric", month: "short" });
-}
+      // ---- Render ----
+      const app = document.getElementById("app");
 
-// ---- Render ----
-const app = document.getElementById("app");
-
-function renderSetup() {
-  app.innerHTML = `
+      function renderSetup() {
+        app.innerHTML = `
     <div class="setup-wrap">
       <div class="setup-card">
         <div class="setup-icon">🚭</div>
@@ -498,72 +589,86 @@ function renderSetup() {
     </div>
   `;
 
-  document.getElementById("btn-go").onclick = () => {
-    state.quitDate = document.getElementById("f-date").value;
-    state.cigsPerDay = +document.getElementById("f-cigs").value || 20;
-    state.packPrice = +document.getElementById("f-price").value || 7;
-    state.cigsInPack = +document.getElementById("f-inpack").value || 20;
-    state.screen = "dashboard";
-    saveState();
-    renderDashboard();
-  };
-}
+        document.getElementById("btn-go").onclick = () => {
+          state.quitDate = document.getElementById("f-date").value;
+          state.cigsPerDay = +document.getElementById("f-cigs").value || 20;
+          state.packPrice = +document.getElementById("f-price").value || 7;
+          state.cigsInPack = +document.getElementById("f-inpack").value || 20;
+          state.screen = "dashboard";
+          saveState();
+          renderDashboard();
+        };
+      }
 
-function renderDashboard() {
-  const ms = elapsed();
-  const d = fmtDur(ms);
-  const elDays = ms / 86400000;
-  const saved = (elDays * dailyCost()).toFixed(0);
-  const avoided = Math.floor(elDays * state.cigsPerDay);
-  const lifeMin = avoided * 11;
-  const lifeStr = lifeMin >= 1440 ? `${(lifeMin/1440).toFixed(1)}д` : lifeMin >= 60 ? `${Math.floor(lifeMin/60)}ч` : `${lifeMin}м`;
+      function renderDashboard() {
+        const ms = elapsed();
+        const d = fmtDur(ms);
+        const elDays = ms / 86400000;
+        const saved = (elDays * dailyCost()).toFixed(0);
+        const avoided = Math.floor(elDays * state.cigsPerDay);
+        const lifeMin = avoided * 11;
+        const lifeStr =
+          lifeMin >= 1440
+            ? `${(lifeMin / 1440).toFixed(1)}д`
+            : lifeMin >= 60
+            ? `${Math.floor(lifeMin / 60)}ч`
+            : `${lifeMin}м`;
 
-  const passedMs = MILESTONES.filter(m => m.days <= elDays);
-  const futureMs = MILESTONES.filter(m => m.days > elDays);
-  const next = futureMs[0] || null;
+        const passedMs = MILESTONES.filter((m) => m.days <= elDays);
+        const futureMs = MILESTONES.filter((m) => m.days > elDays);
+        const next = futureMs[0] || null;
 
-  let nextProg = 100;
-  if (next) {
-    const prev = passedMs.length ? passedMs[passedMs.length - 1].days : 0;
-    nextProg = Math.min(100, Math.max(2, ((elDays - prev) / (next.days - prev)) * 100));
-  }
+        let nextProg = 100;
+        if (next) {
+          const prev = passedMs.length ? passedMs[passedMs.length - 1].days : 0;
+          nextProg = Math.min(100, Math.max(2, ((elDays - prev) / (next.days - prev)) * 100));
+        }
 
-  let milestonesHtml = MILESTONES.map(m => {
-    const passed = m.days <= elDays;
-    const isAdded = state.added[m.days];
-    return `
-      <div class="milestone ${passed ? 'passed' : ''} animate-in">
-        <div class="ms-dot">${passed ? '✓' : '○'}</div>
+        let milestonesHtml = MILESTONES.map((m) => {
+          const passed = m.days <= elDays;
+          const isAdded = state.added[m.days];
+          return `
+      <div class="milestone ${passed ? "passed" : ""} animate-in">
+        <div class="ms-dot">${passed ? "✓" : "○"}</div>
         <div class="ms-body">
           <div class="ms-name">${m.label}<span class="ms-date">${milestoneDate(m)}</span></div>
           <div class="ms-detail">${m.health} · 💰 ~$${(m.days * dailyCost()).toFixed(0)}</div>
         </div>
         <div class="ms-action">
-          ${passed
-            ? '<span class="passed-badge">Пройдено ✨</span>'
-            : `<button class="btn-remind ${isAdded ? 'added' : ''}" data-days="${m.days}">
-                ${isAdded ? '✓ Добавлено' : '📅 Напомнить'}
+          ${
+            passed
+              ? '<span class="passed-badge">Пройдено ✨</span>'
+              : `<button class="btn-remind ${isAdded ? "added" : ""}" data-days="${m.days}">
+                ${isAdded ? "✓ Добавлено" : "📅 Напомнить"}
               </button>`
           }
         </div>
       </div>
     `;
-  }).join("");
+        }).join("");
 
-  const hasFuture = futureMs.length > 0;
-  const allAdded = futureMs.every(m => state.added[m.days]);
+        const hasFuture = futureMs.length > 0;
+        const allAdded = futureMs.every((m) => state.added[m.days]);
 
-  app.innerHTML = `
+        app.innerHTML = `
     <div class="container">
       <div class="header-label">Без сигарет</div>
       <div class="timer-row">
-        <div class="timer-unit"><div class="timer-val big" id="t-d">${pad(d.days)}</div><div class="timer-lbl">дн</div></div>
+        <div class="timer-unit"><div class="timer-val big" id="t-d">${pad(
+          d.days
+        )}</div><div class="timer-lbl">дн</div></div>
         <span class="timer-sep">:</span>
-        <div class="timer-unit"><div class="timer-val" id="t-h">${pad(d.hours)}</div><div class="timer-lbl">ч</div></div>
+        <div class="timer-unit"><div class="timer-val" id="t-h">${pad(
+          d.hours
+        )}</div><div class="timer-lbl">ч</div></div>
         <span class="timer-sep">:</span>
-        <div class="timer-unit"><div class="timer-val" id="t-m">${pad(d.mins)}</div><div class="timer-lbl">мин</div></div>
+        <div class="timer-unit"><div class="timer-val" id="t-m">${pad(
+          d.mins
+        )}</div><div class="timer-lbl">мин</div></div>
         <span class="timer-sep">:</span>
-        <div class="timer-unit"><div class="timer-val" id="t-s">${pad(d.secs)}</div><div class="timer-lbl">сек</div></div>
+        <div class="timer-unit"><div class="timer-val" id="t-s">${pad(
+          d.secs
+        )}</div><div class="timer-lbl">сек</div></div>
       </div>
 
       <div class="stats-row">
@@ -584,7 +689,9 @@ function renderDashboard() {
         </div>
       </div>
 
-      ${next ? `
+      ${
+        next
+          ? `
       <div class="next-box animate-in" style="animation-delay:.12s">
         <div class="next-top">
           <div>
@@ -596,11 +703,17 @@ function renderDashboard() {
         <div class="next-health">${next.health}</div>
         <div class="progress-track"><div class="progress-fill" style="width:${nextProg}%"></div></div>
       </div>
-      ` : ''}
+      `
+          : ""
+      }
 
       <div class="section-title">Календарь вех</div>
 
-      ${hasFuture && !allAdded ? `<button class="btn-add-all" id="btn-all">📅 Добавить все напоминания в календарь</button>` : ''}
+      ${
+        hasFuture && !allAdded
+          ? `<button class="btn-add-all" id="btn-all">📅 Добавить все напоминания в календарь</button>`
+          : ""
+      }
 
       ${milestonesHtml}
 
@@ -608,66 +721,73 @@ function renderDashboard() {
     </div>
   `;
 
-  // Event: remind buttons
-  document.querySelectorAll(".btn-remind").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const days = +btn.dataset.days;
-      const m = MILESTONES.find(ms => ms.days === days);
-      if (m) downloadIcs(m);
-      state.added[days] = true;
-      saveState();
-      btn.classList.add("added");
-      btn.textContent = "✓ Добавлено";
-    });
-  });
+        // Event: remind buttons
+        document.querySelectorAll(".btn-remind").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const days = +btn.dataset.days;
+            const m = MILESTONES.find((ms) => ms.days === days);
+            if (m) downloadIcs(m);
+            state.added[days] = true;
+            saveState();
+            btn.classList.add("added");
+            btn.textContent = "✓ Добавлено";
+          });
+        });
 
-  // Event: add all
-  const btnAll = document.getElementById("btn-all");
-  if (btnAll) {
-    btnAll.onclick = () => {
-      futureMs.forEach((m, i) => {
-        state.added[m.days] = true;
-        setTimeout(() => { downloadIcs(m); }, i * 800);
-      });
-      saveState();
-      setTimeout(() => renderDashboard(), futureMs.length * 800 + 200);
-    };
-  }
+        // Event: add all
+        const btnAll = document.getElementById("btn-all");
+        if (btnAll) {
+          btnAll.onclick = () => {
+            futureMs.forEach((m, i) => {
+              state.added[m.days] = true;
+              setTimeout(() => {
+                downloadIcs(m);
+              }, i * 800);
+            });
+            saveState();
+            setTimeout(() => renderDashboard(), futureMs.length * 800 + 200);
+          };
+        }
 
-  // Event: settings
-  document.getElementById("btn-reset").onclick = () => {
-    state.screen = "setup";
-    renderSetup();
-  };
-}
+        // Event: settings
+        document.getElementById("btn-reset").onclick = () => {
+          state.screen = "setup";
+          renderSetup();
+        };
+      }
 
-// ---- Live timer update (lightweight, no re-render) ----
-function tickTimer() {
-  if (state.screen !== "dashboard") return;
-  const d = fmtDur(elapsed());
-  const td = document.getElementById("t-d");
-  if (td) {
-    td.textContent = pad(d.days);
-    document.getElementById("t-h").textContent = pad(d.hours);
-    document.getElementById("t-m").textContent = pad(d.mins);
-    document.getElementById("t-s").textContent = pad(d.secs);
+      // ---- Live timer update (lightweight, no re-render) ----
+      function tickTimer() {
+        if (state.screen !== "dashboard") return;
+        const d = fmtDur(elapsed());
+        const td = document.getElementById("t-d");
+        if (td) {
+          td.textContent = pad(d.days);
+          document.getElementById("t-h").textContent = pad(d.hours);
+          document.getElementById("t-m").textContent = pad(d.mins);
+          document.getElementById("t-s").textContent = pad(d.secs);
 
-    const elDays = elapsed() / 86400000;
-    const saved = (elDays * dailyCost()).toFixed(0);
-    const avoided = Math.floor(elDays * state.cigsPerDay);
-    const lifeMin = avoided * 11;
-    const lifeStr = lifeMin >= 1440 ? `${(lifeMin/1440).toFixed(1)}д` : lifeMin >= 60 ? `${Math.floor(lifeMin/60)}ч` : `${lifeMin}м`;
-    document.getElementById("s-money").textContent = `$${saved}`;
-    document.getElementById("s-cigs").textContent = avoided;
-    document.getElementById("s-life").textContent = lifeStr;
-  }
-}
+          const elDays = elapsed() / 86400000;
+          const saved = (elDays * dailyCost()).toFixed(0);
+          const avoided = Math.floor(elDays * state.cigsPerDay);
+          const lifeMin = avoided * 11;
+          const lifeStr =
+            lifeMin >= 1440
+              ? `${(lifeMin / 1440).toFixed(1)}д`
+              : lifeMin >= 60
+              ? `${Math.floor(lifeMin / 60)}ч`
+              : `${lifeMin}м`;
+          document.getElementById("s-money").textContent = `$${saved}`;
+          document.getElementById("s-cigs").textContent = avoided;
+          document.getElementById("s-life").textContent = lifeStr;
+        }
+      }
 
-setInterval(tickTimer, 1000);
+      setInterval(tickTimer, 1000);
 
-// ---- Init ----
-if (state.screen === "dashboard") renderDashboard();
-else renderSetup();
-</script>
-</body>
+      // ---- Init ----
+      if (state.screen === "dashboard") renderDashboard();
+      else renderSetup();
+    </script>
+  </body>
 </html>
