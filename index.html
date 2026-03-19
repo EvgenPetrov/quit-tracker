@@ -507,9 +507,9 @@ function renderDashboard() {
         <div class="ms-action">
           ${passed
             ? '<span class="passed-badge">Пройдено ✨</span>'
-            : `<a class="btn-remind ${isAdded ? 'added' : ''}" href="${calUrl(m)}" target="_blank" rel="noopener" data-days="${m.days}">
+            : `<button class="btn-remind ${isAdded ? 'added' : ''}" data-days="${m.days}" data-url="${calUrl(m).replace(/"/g, '&quot;')}">
                 ${isAdded ? '✓ Добавлено' : '📅 Напомнить'}
-              </a>`
+              </button>`
           }
         </div>
       </div>
@@ -574,14 +574,34 @@ function renderDashboard() {
     </div>
   `;
 
+  // Open calendar URL — works on mobile by forcing browser context
+  function openCal(url) {
+    const w = window.open('about:blank', '_blank');
+    if (w) {
+      w.location.href = url;
+    } else {
+      window.location.href = url;
+    }
+  }
+
   // Event: remind buttons
-  document.querySelectorAll(".btn-remind").forEach(a => {
-    a.addEventListener("click", () => {
-      const days = +a.dataset.days;
-      state.added[days] = true;
-      saveState();
-      a.classList.add("added");
-      a.textContent = "✓ Добавлено";
+  document.querySelectorAll(".btn-remind").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const days = +btn.dataset.days;
+      if (state.added[days]) {
+        // Toggle OFF — cancel "added"
+        delete state.added[days];
+        saveState();
+        btn.classList.remove("added");
+        btn.textContent = "📅 Напомнить";
+      } else {
+        // Toggle ON — open calendar, mark as added
+        openCal(btn.dataset.url);
+        state.added[days] = true;
+        saveState();
+        btn.classList.add("added");
+        btn.textContent = "✓ Добавлено";
+      }
     });
   });
 
@@ -591,7 +611,7 @@ function renderDashboard() {
     btnAll.onclick = () => {
       futureMs.forEach((m, i) => {
         state.added[m.days] = true;
-        setTimeout(() => { window.open(calUrl(m), "_blank"); }, i * 600);
+        setTimeout(() => { openCal(calUrl(m)); }, i * 800);
       });
       saveState();
       renderDashboard();
